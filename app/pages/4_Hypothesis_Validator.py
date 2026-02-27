@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import streamlit as st
 from app.theme import page_header, metric_card, conf_bar, verdict_badge, badge, COLORS, inject_css
 from src.paper_ingestion import ingest_paper, truncate_paper
+from src.search_widget import render_search_widget, search_results_to_papers
 from src.llm_utils import call_llm, parse_llm_json
 from src.config import get_config
 
@@ -21,30 +22,44 @@ hypothesis = st.text_area(
     placeholder="e.g., 'Transformer models with sparse attention achieve better generalization than dense attention on long sequences.'"
 )
 
-uploaded_papers = st.file_uploader(
-    "Upload papers (PDF, 3–10 recommended)",
-    type=["pdf"],
-    accept_multiple_files=True,
-)
+# Paper input — search or upload
+tab_search, tab_upload = st.tabs(["🔍 Search Papers", "📄 Upload PDFs"])
+
+with tab_search:
+    selected_search = render_search_widget(key="page_4_search", min_select=1)
+
+with tab_upload:
+    uploaded_papers = st.file_uploader(
+        "Upload papers (PDF, 3–10 recommended)",
+        type=["pdf"],
+        accept_multiple_files=True,
+    )
 
 if st.button("Validate Hypothesis", type="primary", use_container_width=True):
     if not hypothesis.strip():
         st.error("Please enter a hypothesis.")
         st.stop()
-    if not uploaded_papers:
-        st.error("Please upload at least one paper.")
-        st.stop()
     if not config.openai_api_key:
         st.error("OPENAI_API_KEY not set in .env")
         st.stop()
 
-    # Ingest papers
+    # Ingest papers from whichever source is populated
     papers = []
-    with st.spinner("Parsing papers..."):
-        for f in uploaded_papers:
-            paper = ingest_paper(f)
-            papers.append(paper)
-            st.caption(f"✓ Parsed: {paper['title'][:80]}")
+    if selected_search:
+        with st.spinner("Fetching papers..."):
+            papers = search_results_to_papers(selected_search)
+            for p in papers:
+                st.caption(f"✓ {p['title'][:80]}")
+    elif uploaded_papers:
+        with st.spinner("Parsing papers..."):
+            for f in uploaded_papers:
+                paper = ingest_paper(f)
+                papers.append(paper)
+                st.caption(f"✓ Parsed: {paper['title'][:80]}")
+
+    if not papers:
+        st.error("Please search for or upload at least one paper.")
+        st.stop()
 
     # Build prompt
     paper_blocks = []

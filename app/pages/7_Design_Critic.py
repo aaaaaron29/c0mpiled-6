@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import streamlit as st
 from app.theme import page_header, metric_card, severity_badge, badge, COLORS, inject_css
 from src.paper_ingestion import ingest_paper, truncate_paper
+from src.search_widget import render_search_widget, search_results_to_papers
 from src.llm_utils import call_llm, parse_llm_json
 from src.config import get_config
 
@@ -24,12 +25,19 @@ experiment_text = st.text_area(
     )
 )
 
-# Optional: background papers
-uploaded_papers = st.file_uploader(
-    "Optional: Upload background papers (PDF)",
-    type=["pdf"],
-    accept_multiple_files=True,
-)
+# Optional: background papers — search or upload
+st.markdown("**Optional: Background Papers**")
+tab_search, tab_upload = st.tabs(["🔍 Search Papers", "📄 Upload PDFs"])
+
+with tab_search:
+    selected_search = render_search_widget(key="page_7_search", min_select=1)
+
+with tab_upload:
+    uploaded_papers = st.file_uploader(
+        "Optional: Upload background papers (PDF)",
+        type=["pdf"],
+        accept_multiple_files=True,
+    )
 
 if st.button("Critique Design", type="primary", use_container_width=True):
     if not experiment_text.strip():
@@ -39,9 +47,19 @@ if st.button("Critique Design", type="primary", use_container_width=True):
         st.error("OPENAI_API_KEY not set in .env")
         st.stop()
 
-    # Ingest papers if provided
+    # Ingest background papers if provided (optional)
     paper_summary = ""
-    if uploaded_papers:
+    if selected_search:
+        with st.spinner("Fetching background papers..."):
+            papers = search_results_to_papers(selected_search)
+            for p in papers:
+                st.caption(f"✓ {p['title'][:60]}")
+        paper_parts = []
+        for p in papers:
+            excerpt = truncate_paper(p, max_chars=1500)
+            paper_parts.append(f"{p['title']}: {excerpt}")
+        paper_summary = "\n\n".join(paper_parts)
+    elif uploaded_papers:
         papers = []
         with st.spinner("Parsing background papers..."):
             for f in uploaded_papers:

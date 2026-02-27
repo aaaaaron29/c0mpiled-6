@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import streamlit as st
 from app.theme import page_header, metric_card, conf_bar, badge, COLORS, inject_css
 from src.paper_ingestion import ingest_paper
+from src.search_widget import render_search_widget, search_results_to_papers
 from src.llm_utils import call_llm, parse_llm_json
 from src.config import get_config
 
@@ -14,19 +15,36 @@ page_header("Replicability Scorer", "Score a paper's methods section for reprodu
 
 config = get_config()
 
-uploaded = st.file_uploader("Upload one paper (PDF)", type=["pdf"])
+# Paper input — search or upload
+tab_search, tab_upload = st.tabs(["🔍 Search Papers", "📄 Upload PDFs"])
+
+with tab_search:
+    selected_search = render_search_widget(key="page_6_search", min_select=1)
+
+with tab_upload:
+    uploaded = st.file_uploader("Upload one paper (PDF)", type=["pdf"])
 
 if st.button("Score Replicability", type="primary", use_container_width=True):
-    if not uploaded:
-        st.error("Please upload a paper.")
-        st.stop()
     if not config.openai_api_key:
         st.error("OPENAI_API_KEY not set in .env")
         st.stop()
 
-    with st.spinner("Parsing paper..."):
-        paper = ingest_paper(uploaded)
-        st.caption(f"✓ Parsed: {paper['title'][:80]}")
+    # Ingest paper from whichever source is populated
+    paper = None
+    if selected_search:
+        with st.spinner("Fetching paper..."):
+            papers = search_results_to_papers(selected_search[:1])
+            if papers:
+                paper = papers[0]
+                st.caption(f"✓ {paper['title'][:80]}")
+    elif uploaded:
+        with st.spinner("Parsing paper..."):
+            paper = ingest_paper(uploaded)
+            st.caption(f"✓ Parsed: {paper['title'][:80]}")
+
+    if not paper:
+        st.error("Please search for or upload a paper.")
+        st.stop()
 
     # Use methods section or full text
     methods_text = paper["sections"].get("methods", "") or paper["full_text"]

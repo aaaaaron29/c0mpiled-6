@@ -26,6 +26,8 @@ ResearchOS is an AI-powered research platform built with Streamlit + LangGraph. 
 | src/export.py | Data export to CSV/JSON/JSONL | not started |
 | src/fallback.py | Human review queue | not started |
 | src/preprocessors.py | Image preprocessing utilities | not started |
+| src/paper_search.py | Semantic Scholar + OpenAlex paper search | done |
+| src/search_widget.py | Reusable Streamlit search+select UI for papers | done |
 | src/tools/__init__.py | Tools package | not started |
 | src/tools/base.py | BaseTool ABC + ToolResult | not started |
 | src/tools/cleaning.py | CleaningTool | not started |
@@ -53,7 +55,10 @@ Data Pages (1-3):
   Review Queue reads from data/review_queue/ JSON files
 
 Research Pages (4-7):
-  Upload PDFs -> paper_ingestion.py (PyMuPDF) -> llm_utils.py -> Structured JSON
+  [Search tab]  paper_search.py (Semantic Scholar / OpenAlex) -> search_widget.py
+             -> search_results_to_papers() -> same paper dict format
+  [Upload tab]  Upload PDFs -> paper_ingestion.py (PyMuPDF)
+  Both paths -> llm_utils.py -> Structured JSON
 
 Team Page (8):
   Session state CRUD -> No external dependencies
@@ -71,6 +76,8 @@ Labeling Pipeline (LangGraph):
 
 ## Config & Environment
 - `OPENAI_API_KEY`: Required for LLM features
+- `SEMANTIC_SCHOLAR_API_KEY`: Optional — increases Semantic Scholar rate limit to 10 req/sec
+- `OPENALEX_EMAIL`: Optional — enables OpenAlex polite pool access
 - Models: gpt-5-mini for labeler, critic, vision
 - Temperature: 0.1, Max tokens: 4096, Min confidence: 85, Max retries: 3
 
@@ -83,6 +90,7 @@ Labeling Pipeline (LangGraph):
 - Phase 5: Theme + data pages 1-3 complete
 - Phase 6: All research pages 4-7 + Team (8) + Home complete
 - BUILD COMPLETE — all imports verified, syntax clean
+- Phase 7: paper_search.py + search_widget.py added; pages 4-7 updated with tabbed search/upload input
 
 ## Known Issues / TODOs
 - LLM features require valid OPENAI_API_KEY in .env
