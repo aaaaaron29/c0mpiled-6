@@ -1,0 +1,15 @@
+{
+  "task_type": "object_detection",
+  "allowed_labels": ["PERSON", "VEHICLE", "ANIMAL", "BUILDING", "FOOD", "NATURE", "OBJECT", "SCENE"],
+  "criteria": [
+    "Label the most prominent or primary object/scene category",
+    "SCENE is for wide-angle or landscape-type content",
+    "Bounding boxes must have valid coordinates if provided",
+    "Confidence should correlate with visual clarity of the subject"
+  ],
+  "common_errors": [
+    "Using OBJECT when a more specific category applies",
+    "Providing bounding boxes without accurate coordinates",
+    "Overconfident on blurry or partially visible subjects"
+  ]
+}

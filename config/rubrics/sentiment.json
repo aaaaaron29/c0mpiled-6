@@ -1,0 +1,15 @@
+{
+  "task_type": "sentiment",
+  "allowed_labels": ["POSITIVE", "NEGATIVE", "NEUTRAL", "MIXED"],
+  "criteria": [
+    "Label must be one of: POSITIVE, NEGATIVE, NEUTRAL, MIXED",
+    "MIXED is appropriate when both positive and negative signals coexist",
+    "Confidence should be lower for ambiguous or sarcastic text",
+    "Reasoning must reference specific phrases that drove the classification"
+  ],
+  "common_errors": [
+    "Classifying factual statements as NEUTRAL when they carry implicit sentiment",
+    "Missing sarcasm or irony that flips polarity",
+    "Overconfident on short or ambiguous texts"
+  ]
+}

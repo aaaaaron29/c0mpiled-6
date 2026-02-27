@@ -1,0 +1,15 @@
+{
+  "task_type": "ner",
+  "allowed_labels": ["PERSON", "ORGANIZATION", "LOCATION", "DATE", "PRODUCT", "EVENT", "OTHER"],
+  "criteria": [
+    "Label must be one of the allowed entity types",
+    "Confidence should reflect certainty about the entity boundary and type",
+    "Reasoning must cite specific tokens in the text as evidence",
+    "Ambiguous entities should use OTHER with explanation"
+  ],
+  "common_errors": [
+    "Confusing PERSON with ORGANIZATION (e.g., sports teams vs athletes)",
+    "Marking generic words as LOCATION without geographic reference",
+    "Low confidence for clearly named entities"
+  ]
+}

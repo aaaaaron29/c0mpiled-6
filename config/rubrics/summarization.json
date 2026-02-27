@@ -1,0 +1,15 @@
+{
+  "task_type": "summarization",
+  "allowed_labels": ["TECHNICAL", "SCIENTIFIC", "NEWS", "OPINION", "NARRATIVE", "INSTRUCTIONAL", "OTHER"],
+  "criteria": [
+    "Label reflects the primary genre/domain of the text",
+    "SCIENTIFIC is for peer-reviewed or research-style content",
+    "TECHNICAL is for documentation, code, or specifications",
+    "Confidence should be high for clearly domain-specific texts"
+  ],
+  "common_errors": [
+    "Confusing SCIENTIFIC with TECHNICAL for applied research",
+    "Labeling all first-person text as OPINION",
+    "Missing NARRATIVE for story-like content"
+  ]
+}

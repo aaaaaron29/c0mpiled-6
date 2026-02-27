@@ -1,0 +1,15 @@
+{
+  "task_type": "ocr",
+  "allowed_labels": ["HANDWRITTEN", "PRINTED", "MIXED", "FORM", "TABLE", "RECEIPT", "LABEL", "OTHER"],
+  "criteria": [
+    "Distinguish between handwritten and printed text accurately",
+    "FORM applies to structured input forms with fields",
+    "TABLE applies to grid/tabular layouts",
+    "RECEIPT is specifically for commercial transaction records"
+  ],
+  "common_errors": [
+    "Confusing FORM with TABLE for structured layouts",
+    "Missing MIXED when both handwritten and printed text coexist",
+    "Overusing OTHER when a specific category applies"
+  ]
+}
