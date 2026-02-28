@@ -165,3 +165,60 @@ def severity_badge(severity: str) -> str:
 def verdict_badge(verdict: str) -> str:
     color = VERDICT_COLORS.get(verdict, COLORS["neutral"])
     return badge(verdict, color)
+
+
+def render_project_sidebar():
+    """Sidebar UI for project management. Returns active project id or None."""
+    from src.projects import create_project, list_projects, load_artifacts, get_project, init_db
+    init_db()
+
+    st.sidebar.header("📁 Projects")
+    projects = list_projects()
+
+    # New project form
+    with st.sidebar.expander("➕ New Project", expanded=False):
+        new_name = st.text_input("Project name", key="sidebar_new_project_name")
+        new_desc = st.text_area("Description (optional)", key="sidebar_new_project_desc", height=80)
+        if st.button("Create Project", key="sidebar_create_project"):
+            if new_name.strip():
+                project = create_project(new_name.strip(), new_desc.strip())
+                st.session_state["active_project_id"] = project.id
+                st.success(f"Created: {project.name}")
+                st.rerun()
+            else:
+                st.warning("Project name is required.")
+
+    if not projects:
+        st.sidebar.info("No projects yet. Create one above.")
+        st.session_state["active_project_id"] = None
+        return None
+
+    # Project selector
+    project_names = ["— No Project —"] + [p.name for p in projects]
+    project_ids = [None] + [p.id for p in projects]
+
+    current_id = st.session_state.get("active_project_id")
+    current_index = 0
+    if current_id in project_ids:
+        current_index = project_ids.index(current_id)
+
+    selected_index = st.sidebar.selectbox(
+        "Active Project",
+        options=range(len(project_names)),
+        format_func=lambda i: project_names[i],
+        index=current_index,
+        key="sidebar_project_selector",
+    )
+    selected_id = project_ids[selected_index]
+    st.session_state["active_project_id"] = selected_id
+
+    if selected_id:
+        project = get_project(selected_id)
+        artifacts = load_artifacts(selected_id)
+        st.sidebar.caption(f"📄 {len(artifacts)} saved artifact{'s' if len(artifacts) != 1 else ''}")
+        if artifacts:
+            with st.sidebar.expander("View Artifacts", expanded=False):
+                for artifact in artifacts[:10]:
+                    st.caption(f"• {artifact.name} ({artifact.artifact_type})")
+
+    return selected_id

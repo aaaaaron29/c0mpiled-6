@@ -18,6 +18,8 @@ build/
 data/input/
 data/output/
 data/review_queue/
+data/projects/
+data/researchos.db
 
 # Streamlit
 .streamlit/secrets.toml

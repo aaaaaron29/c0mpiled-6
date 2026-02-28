@@ -198,7 +198,10 @@ def validator_node(state: dict) -> Command:
 
 def fallback_node(state: dict) -> Command:
     """Writes item to human review queue."""
-    from src.fallback import write_to_review_queue
+    try:
+        from src.fallback import write_to_review_queue
+    except ImportError:
+        write_to_review_queue = None
     from src.models import HumanReviewItem
     import datetime
 
@@ -227,11 +230,12 @@ def fallback_node(state: dict) -> Command:
         timestamp=datetime.datetime.utcnow().isoformat(),
     )
 
-    try:
-        config = get_config()
-        write_to_review_queue(item, config)
-    except Exception as e:
-        pass  # Don't crash the pipeline on queue write failure
+    if write_to_review_queue is not None:
+        try:
+            config = get_config()
+            write_to_review_queue(item, config)
+        except Exception:
+            pass
 
     return Command(
         goto="__end__",

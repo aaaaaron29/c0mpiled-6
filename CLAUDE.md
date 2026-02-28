@@ -1,100 +1,119 @@
 # ResearchOS - Architecture & Build Log
 
 ## Project Overview
-ResearchOS is an AI-powered research platform built with Streamlit + LangGraph. It provides 8 tools for research teams: data cleaning, data labeling, review queue, hypothesis validation, contradiction detection, replicability scoring, experiment design critique, and team management.
+ResearchOS is an AI-powered research platform built with Streamlit + LangGraph for the AI for Productivity & Research Hackathon. It provides 6 tools for research teams: idea generation, research roadmaps, literature analysis, experiment design critique, data processing, and human review.
 
-**Tech Stack:** Streamlit, LangGraph, LangChain, OpenAI (gpt-5-mini), Pydantic V2, PyMuPDF, Pandas
+**Tech Stack:** Streamlit, LangGraph, LangChain, OpenAI (gpt-5-mini), Pydantic V2, PyMuPDF, Pandas, SQLite
 **Run:** `cd researchos && streamlit run app/Home.py`
 **Env:** Requires `OPENAI_API_KEY` in `.env` (copy from `.env.example`)
+**Repo:** https://github.com/aaaaaron29/c0mpiled-6
 
 ## File Map
-| File | Purpose | Status |
-|------|---------|--------|
-| CLAUDE.md | Architecture doc | in-progress |
-| requirements.txt | Dependencies | not started |
-| .env.example | Env template | not started |
-| README.md | Project readme | not started |
-| src/__init__.py | Package init | not started |
-| src/config.py | Config + env loading + get_llm() | not started |
-| src/models.py | Pydantic V2 schemas (all data models) | not started |
-| src/agents.py | LangGraph agent nodes | not started |
-| src/graph.py | LangGraph state machine | not started |
-| src/prompts.py | Prompt templates | not started |
-| src/ingestion.py | CSV/JSON/JSONL data loading | not started |
-| src/paper_ingestion.py | PDF paper parsing with PyMuPDF | not started |
-| src/llm_utils.py | Shared LLM wrapper + JSON parsing | not started |
-| src/export.py | Data export to CSV/JSON/JSONL | not started |
-| src/fallback.py | Human review queue | not started |
-| src/preprocessors.py | Image preprocessing utilities | not started |
-| src/paper_search.py | Semantic Scholar + OpenAlex paper search | done |
-| src/search_widget.py | Reusable Streamlit search+select UI for papers | done |
-| src/tools/__init__.py | Tools package | not started |
-| src/tools/base.py | BaseTool ABC + ToolResult | not started |
-| src/tools/cleaning.py | CleaningTool | not started |
-| src/tools/labeling.py | LabelingTool | not started |
-| src/tools/evaluation.py | EvaluationTool | not started |
-| src/tools/pipeline.py | Sequential tool chaining | not started |
-| config/rubrics/*.json | 5 evaluation rubrics | not started |
-| app/Home.py | Dashboard with 8 tool cards | not started |
-| app/theme.py | Design system + CSS + UI helpers | not started |
-| app/pages/1_Data_Cleaning.py | Upload, clean, compare, export | not started |
-| app/pages/2_Data_Labeling.py | Single + batch labeling with trace | not started |
-| app/pages/3_Review_Queue.py | Human review dashboard | not started |
-| app/pages/4_Hypothesis_Validator.py | Evaluate hypothesis vs papers | not started |
-| app/pages/5_Contradiction_Detector.py | Cross-paper contradiction finder | not started |
-| app/pages/6_Replicability_Scorer.py | Methods reproducibility scorer | not started |
-| app/pages/7_Design_Critic.py | Experiment design critique | not started |
-| app/pages/8_Team_Management.py | Team CRUD + task tracking | not started |
+| File | Purpose |
+|------|---------|
+| CLAUDE.md | Architecture doc |
+| requirements.txt | Dependencies |
+| .env.example | Env template |
+| .env | API keys (gitignored) |
+| .gitignore | Ignores .env, data/, __pycache__ |
+| src/__init__.py | Package init |
+| src/config.py | Config + env loading + get_llm() — singleton, gpt-5-mini defaults |
+| src/models.py | Pydantic V2 schemas (all data models) |
+| src/projects.py | Project CRUD + artifact storage — SQLite backend |
+| src/agents.py | LangGraph agent nodes (fallback import wrapped in try/except) |
+| src/graph.py | LangGraph state machine |
+| src/prompts.py | Prompt templates |
+| src/ingestion.py | CSV/JSON/JSONL data loading |
+| src/paper_ingestion.py | PDF paper parsing with PyMuPDF |
+| src/llm_utils.py | Shared LLM wrapper + JSON parsing |
+| src/export.py | Data export to CSV/JSON/JSONL |
+| src/fallback.py | Human review queue |
+| src/preprocessors.py | Image preprocessing utilities |
+| src/paper_search.py | Semantic Scholar + OpenAlex paper search with fallback |
+| src/search_widget.py | Reusable Streamlit search+select UI for papers |
+| src/tools/base.py | BaseTool ABC + ToolResult |
+| src/tools/cleaning.py | CleaningTool |
+| src/tools/labeling.py | LabelingTool |
+| src/tools/evaluation.py | EvaluationTool |
+| src/tools/pipeline.py | Sequential tool chaining |
+| config/rubrics/*.json | 5 evaluation rubrics |
+| app/Home.py | Dashboard — research tools, data tools, recent projects |
+| app/theme.py | Design system + CSS + UI helpers + render_project_sidebar() |
+| app/pages/1_Idea_Engine.py | Research Discovery + Hypothesis Validation (2 modes) |
+| app/pages/2_Research_Roadmap.py | Auto paper search → methodology, datasets, angles |
+| app/pages/3_Literature_Lens.py | Multi-paper analysis: debates, gaps, open questions |
+| app/pages/4_Design_Critic.py | Experiment critique: confounds, controls, methods |
+| app/pages/5_Data_Processor.py | Clean + Label tabs — PII, dedup, AI labeling with LangGraph trace |
+| app/pages/6_Review_Queue.py | Human review dashboard for low-confidence labels |
+| app/pages/7_Project_Viewer.py | Browse all artifacts saved to a project |
 
 ## Architecture
 ```
 User -> Streamlit Pages -> src/ modules -> LLM (OpenAI gpt-5-mini)
 
-Data Pages (1-3):
-  Upload -> CleaningTool/LabelingTool -> LangGraph Pipeline -> Results/Export
-  Review Queue reads from data/review_queue/ JSON files
-
-Research Pages (4-7):
+Research Pages (1-4):
   [Search tab]  paper_search.py (Semantic Scholar / OpenAlex) -> search_widget.py
              -> search_results_to_papers() -> same paper dict format
   [Upload tab]  Upload PDFs -> paper_ingestion.py (PyMuPDF)
-  Both paths -> llm_utils.py -> Structured JSON
+  Both paths -> llm_utils.py -> Structured JSON -> Save to Project (SQLite)
 
-Team Page (8):
-  Session state CRUD -> No external dependencies
+Data Pages (5-6):
+  Upload -> CleaningTool/LabelingTool -> LangGraph Pipeline -> Results/Export
+  Review Queue reads from data/review_queue/ JSON files
+
+Project System (SQLite):
+  src/projects.py — DB at data/researchos.db
+  Tables: projects (id, name, description, timestamps)
+          artifacts (id, project_id FK CASCADE, type, name, filename, metadata_json)
+  Artifact files stored in data/projects/<project_id>/
+  Sidebar: render_project_sidebar() in theme.py — create, select, view artifacts
 
 Labeling Pipeline (LangGraph):
   labeler_node -> critic_node -> validator_node | fallback_node
   Retries: critic sends feedback back to labeler up to max_retries
+
+Cross-page navigation:
+  Idea Engine "Build Roadmap" -> Research Roadmap (auto-executes via roadmap_topic)
+  Literature Lens "Explore in Idea Engine" -> Idea Engine (prefills via idea_engine_topic)
 ```
 
 ## Shared Components
-- **paper_ingestion.py**: PDF parsing via PyMuPDF, used by pages 4-7
-- **llm_utils.py**: `call_llm()` + `parse_llm_json()`, used by pages 4-7
-- **config.py**: `get_config()` + `get_llm()`, used everywhere
-- **theme.py**: `page_header()`, `metric_card()`, `badge()`, `conf_bar()`, `trace_step()`
+- **projects.py**: SQLite project CRUD + artifact storage, absolute paths via _ROOT
+- **paper_ingestion.py**: PDF parsing via PyMuPDF, used by pages 1-4
+- **llm_utils.py**: `call_llm()` + `parse_llm_json()`, used by pages 1-4
+- **config.py**: `get_config()` + `get_llm()`, singleton pattern, loads .env on import
+- **theme.py**: `page_header()`, `metric_card()`, `badge()`, `conf_bar()`, `trace_step()`, `severity_badge()`, `verdict_badge()`, `render_project_sidebar()`
+- **search_widget.py**: `render_search_widget()` + `search_results_to_papers()`
+
+## Project System
+- **Backend**: SQLite at `data/researchos.db` (gitignored)
+- **DB init**: `init_db()` called on module import (CREATE TABLE IF NOT EXISTS)
+- **Paths**: `_ROOT` resolved via `os.path.abspath(__file__)` — all paths absolute
+- **Artifact types**: topic_exploration, hypothesis_validation, roadmap, literature_analysis, design_critique, cleaned_data, labeled_data
+- **Sidebar**: Every page calls `render_project_sidebar()` — create/select projects, view artifact count
+- **Save**: Each research page has "Save to Project" button (only shown when project is active)
+- **Viewer**: Project Viewer (page 7) renders each artifact type with custom display
 
 ## Config & Environment
 - `OPENAI_API_KEY`: Required for LLM features
-- `SEMANTIC_SCHOLAR_API_KEY`: Optional — increases Semantic Scholar rate limit to 10 req/sec
+- `SEMANTIC_SCHOLAR_API_KEY`: Optional — increases Semantic Scholar rate limit
 - `OPENALEX_EMAIL`: Optional — enables OpenAlex polite pool access
-- Models: gpt-5-mini for labeler, critic, vision
+- Models: gpt-5-mini for all LLM calls
 - Temperature: 0.1, Max tokens: 4096, Min confidence: 85, Max retries: 3
 
 ## Build Log
-- Phase 0: CLAUDE.md created, directory structure scaffolded
-- Phase 1: requirements.txt, .env.example, README.md, __init__ files
-- Phase 2: Core engine complete — config, models, agents, graph, prompts
+- Phase 0: CLAUDE.md, directory structure
+- Phase 1: requirements.txt, .env.example, README.md
+- Phase 2: Core engine — config, models, agents, graph, prompts
 - Phase 3: Supporting modules — ingestion, export, fallback, preprocessors, tools/, rubrics/
 - Phase 4: Shared research utils — paper_ingestion, llm_utils
-- Phase 5: Theme + data pages 1-3 complete
-- Phase 6: All research pages 4-7 + Team (8) + Home complete
-- BUILD COMPLETE — all imports verified, syntax clean
-- Phase 7: paper_search.py + search_widget.py added; pages 4-7 updated with tabbed search/upload input
-
-## Known Issues / TODOs
-- LLM features require valid OPENAI_API_KEY in .env
-- Data Cleaning works fully offline (no LLM needed)
-- Team Management works fully offline (session state only)
-- Review Queue works offline (reads JSON files)
-- Model: gpt-5-mini used throughout (labeler, critic, vision)
+- Phase 5: Theme + data pages complete
+- Phase 6: All research pages + Home complete
+- Phase 7: paper_search.py + search_widget.py — tabbed search/upload input on all research pages
+- Phase 8: Renamed Hypothesis Validator → Idea Engine (Discovery + Validation modes)
+- Phase 9: Added Research Roadmap page with auto paper search
+- Phase 10: Renamed Contradiction Detector → Literature Lens (debates, gaps, open questions)
+- Phase 11: Project system — src/projects.py (JSON backend), sidebar, save buttons, Project Viewer
+- Phase 12: Removed Replicability Scorer and Team Management pages
+- Phase 13: Migrated project system to SQLite backend, normalized paths
+- Phase 14: Renumbered pages (1-7) to match Home layout, auto-execute roadmap, updated descriptions

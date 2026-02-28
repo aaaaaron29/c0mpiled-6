@@ -3,7 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 import streamlit as st
-from app.theme import page_header, metric_card, severity_badge, badge, COLORS, inject_css
+from app.theme import page_header, metric_card, severity_badge, badge, COLORS, inject_css, render_project_sidebar
 from src.paper_ingestion import ingest_paper, truncate_paper
 from src.search_widget import render_search_widget, search_results_to_papers
 from src.llm_utils import call_llm, parse_llm_json
@@ -11,9 +11,11 @@ from src.config import get_config
 
 st.set_page_config(page_title="Design Critic — ResearchOS", page_icon="🧪", layout="wide")
 
-page_header("Experiment Design Critic", "Get expert AI critique of your experiment before you run it.", "🧪")
+page_header("Experiment Design Critic", "Paste your experimental design — hypothesis, variables, controls, sample size, and methodology — to get specific, grounded critique before you run it.", "🧪")
 
 config = get_config()
+inject_css()
+active_project = render_project_sidebar()
 
 # Input: experiment description
 experiment_text = st.text_area(
@@ -143,6 +145,14 @@ Return ONLY JSON:
                 sev = issue.get("severity", "Minor")
                 with st.expander(f"{severity_badge(sev)} {issue.get('description', '')[:80]}", expanded=(sev == "Critical")):
                     st.markdown(f"**Grounded in:** {issue.get('grounded_in', '')}")
+    # Save to Project
+    if active_project:
+        st.markdown("---")
+        if st.button("Save to Project", key="save_critique", use_container_width=True):
+            from src.projects import save_artifact
+            save_artifact(active_project, "design_critique", f"Critique: {experiment_text[:50]}",
+                          {"experiment": experiment_text, "result": result},
+                          metadata={"total_issues": len(all_issues), "critical": critical})
+            st.success("Saved to project!")
 else:
-    inject_css()
     st.info("Describe your experiment above and click Critique to get specific, grounded feedback.")
