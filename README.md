@@ -1,6 +1,6 @@
 # PaperTrail
 
-An AI-powered research platform built for the **AI for Productivity & Research Hackathon**. From idea to publication — generate research ideas, analyze literature, build project roadmaps, critique experiment designs, and process your datasets.
+An AI-powered research platform built for the **AI for Productivity & Research**. From idea to publication — generate research ideas, analyze literature, build project roadmaps, critique experiment designs, and process your datasets.
 
 ## Setup
 
