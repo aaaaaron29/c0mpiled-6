@@ -10,7 +10,7 @@ from src.paper_search import search_papers
 from src.llm_utils import call_llm, parse_llm_json
 from src.config import get_config
 
-st.set_page_config(page_title="Idea Engine — ResearchOS", page_icon="💡", layout="wide")
+st.set_page_config(page_title="Idea Engine — PaperTrail", page_icon="💡", layout="wide")
 
 page_header("Idea Engine", "Generate novel research ideas or validate a hypothesis against real papers.", "💡")
 

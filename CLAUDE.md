@@ -1,10 +1,10 @@
-# ResearchOS - Architecture & Build Log
+# PaperTrail - Architecture & Build Log
 
 ## Project Overview
-ResearchOS is an AI-powered research platform built with Streamlit + LangGraph for the AI for Productivity & Research Hackathon. It provides 6 tools for research teams: idea generation, research roadmaps, literature analysis, experiment design critique, data processing, and human review.
+PaperTrail is an AI-powered research platform built with Streamlit + LangGraph for the AI for Productivity & Research Hackathon. It provides 6 tools for research teams: idea generation, research roadmaps, literature analysis, experiment design critique, data processing, and human review.
 
 **Tech Stack:** Streamlit, LangGraph, LangChain, OpenAI (gpt-5-mini), Pydantic V2, PyMuPDF, Pandas, SQLite
-**Run:** `cd researchos && streamlit run app/Home.py`
+**Run:** `cd papertrail && streamlit run app/Home.py`
 **Env:** Requires `OPENAI_API_KEY` in `.env` (copy from `.env.example`)
 **Repo:** https://github.com/aaaaaron29/c0mpiled-6
 
@@ -62,7 +62,7 @@ Data Pages (5-6):
   Review Queue reads from data/review_queue/ JSON files
 
 Project System (SQLite):
-  src/projects.py — DB at data/researchos.db
+  src/projects.py — DB at data/papertrail.db
   Tables: projects (id, name, description, timestamps)
           artifacts (id, project_id FK CASCADE, type, name, filename, metadata_json)
   Artifact files stored in data/projects/<project_id>/
@@ -86,7 +86,7 @@ Cross-page navigation:
 - **search_widget.py**: `render_search_widget()` + `search_results_to_papers()`
 
 ## Project System
-- **Backend**: SQLite at `data/researchos.db` (gitignored)
+- **Backend**: SQLite at `data/papertrail.db` (gitignored)
 - **DB init**: `init_db()` called on module import (CREATE TABLE IF NOT EXISTS)
 - **Paths**: `_ROOT` resolved via `os.path.abspath(__file__)` — all paths absolute
 - **Artifact types**: topic_exploration, hypothesis_validation, roadmap, literature_analysis, design_critique, cleaned_data, labeled_data

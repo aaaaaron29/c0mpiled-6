@@ -12,7 +12,7 @@ from src.graph import run_labeling_graph
 from src.config import get_config
 from src.export import get_export_bytes
 
-st.set_page_config(page_title="Data Processor — ResearchOS", page_icon="⚙️", layout="wide")
+st.set_page_config(page_title="Data Processor — PaperTrail", page_icon="⚙️", layout="wide")
 
 page_header("Data Processor", "Clean and label your research datasets.", "⚙️")
 inject_css()

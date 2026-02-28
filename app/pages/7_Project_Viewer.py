@@ -6,7 +6,7 @@ import streamlit as st
 from app.theme import page_header, metric_card, badge, COLORS, inject_css, render_project_sidebar
 from src.projects import get_project, load_artifacts, load_artifact_data, delete_project
 
-st.set_page_config(page_title="Project Viewer — ResearchOS", page_icon="📁", layout="wide")
+st.set_page_config(page_title="Project Viewer — PaperTrail", page_icon="📁", layout="wide")
 
 page_header("Project Viewer", "Browse all artifacts saved to your project.", "📁")
 inject_css()

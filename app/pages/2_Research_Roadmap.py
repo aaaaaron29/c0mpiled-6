@@ -10,7 +10,7 @@ from src.paper_ingestion import truncate_paper
 from src.llm_utils import call_llm, parse_llm_json
 from src.config import get_config
 
-st.set_page_config(page_title="Research Roadmap — ResearchOS", page_icon="🗺️", layout="wide")
+st.set_page_config(page_title="Research Roadmap — PaperTrail", page_icon="🗺️", layout="wide")
 
 page_header("Research Roadmap", "Turn a research interest into an actionable project plan.", "🗺️")
 

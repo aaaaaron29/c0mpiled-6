@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 _ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 PROJECTS_DIR = os.path.join(_ROOT, "data", "projects")
-DB_PATH = os.path.join(_ROOT, 'data', 'researchos.db')
+DB_PATH = os.path.join(_ROOT, 'data', 'papertrail.db')
 
 
 @dataclass

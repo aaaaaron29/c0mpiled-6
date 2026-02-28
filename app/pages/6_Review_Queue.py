@@ -7,7 +7,7 @@ from app.theme import page_header, metric_card, badge, COLORS, inject_css, rende
 from src.fallback import load_review_queue, get_review_queue_summary, export_review_queue_to_csv, clear_review_queue, delete_review_item
 from src.config import get_config
 
-st.set_page_config(page_title="Review Queue — ResearchOS", page_icon="📋", layout="wide")
+st.set_page_config(page_title="Review Queue — PaperTrail", page_icon="📋", layout="wide")
 
 page_header("Review Queue", "Inspect and manually label items flagged for human review.", "📋")
 inject_css()

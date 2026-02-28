@@ -10,7 +10,7 @@ from src.paper_search import search_papers
 from src.llm_utils import call_llm, parse_llm_json
 from src.config import get_config
 
-st.set_page_config(page_title="Literature Lens — ResearchOS", page_icon="🔎", layout="wide")
+st.set_page_config(page_title="Literature Lens — PaperTrail", page_icon="🔎", layout="wide")
 
 page_header("Literature Lens", "Understand the debates, gaps, and open questions in any research area.", "🔎")
 

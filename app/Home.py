@@ -1,4 +1,4 @@
-"""ResearchOS Home Dashboard."""
+"""PaperTrail Home Dashboard."""
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -6,7 +6,7 @@ import streamlit as st
 from app.theme import inject_css, COLORS, render_project_sidebar
 
 st.set_page_config(
-    page_title="ResearchOS",
+    page_title="PaperTrail",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -18,7 +18,7 @@ active_project = render_project_sidebar()
 # Hero
 st.markdown(f"""
 <div style="text-align:center; padding:40px 0 32px 0;">
-    <h1 style="font-size:3rem; margin:0;">🔬 ResearchOS</h1>
+    <h1 style="font-size:3rem; margin:0;">🔬 PaperTrail</h1>
     <p style="color:{COLORS['muted']}; font-size:1.2rem; margin:12px 0 0 0; max-width:700px; margin-left:auto; margin-right:auto;">
         An AI-powered platform for research teams. From hypothesis to publication —
         discover ideas, analyze literature, build roadmaps, critique designs,
@@ -143,4 +143,4 @@ else:
     st.caption("No projects yet. Create one using the sidebar.")
 
 st.divider()
-st.markdown(f"<p style='text-align:center; color:{COLORS['muted']}; font-size:0.85rem;'>ResearchOS — Built for the AI for Productivity & Research Hackathon</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align:center; color:{COLORS['muted']}; font-size:0.85rem;'>PaperTrail — Built for the AI for Productivity & Research Hackathon</p>", unsafe_allow_html=True)
